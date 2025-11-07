@@ -31,7 +31,7 @@
     <main>
       <section style="margin-bottom:18px">
         <h1>Valuta la tua casa (modello PRO)</h1>
-        <p style="color:#374151">Seleziona città/Quartiere, ascensore/piano e condizioni reali. Inserisci, se lo conosci, il riferimento €/mq della microzona.</p>
+        <p style="color:#374151">Seleziona città/Quartiere, ascensore/piano e condizioni reali. Il modello applica automaticamente valori prudenziali per quartiere e qualità microzona.<\/p>
       </section>
 
       <div class="card">
@@ -85,10 +85,6 @@
                 <option value="4">4 - medio-alta</option>
                 <option value="5">5 - alta</option>
               </select>
-            </div>
-            <div>
-              <label>€/mq microzona (opz.)</label>
-              <input id="eurmqRef" type="number" min="300" step="50" placeholder="Es. 1200" />
             </div>
             <div>
               <label>Indirizzo (via + n.)</label>
@@ -228,10 +224,48 @@
         <div class="result" id="result">
           <div id="resultText"></div>
           <p class="small" style="margin-top:6px">
-            * Stima automatica con margine ±10–15%. Inserisci €/mq microzona quando possibile per massima precisione.
+            * Stima automatica con margine ±10–15%. I valori di quartiere sono prudenziali e già inclusi nel calcolo.
           </p>
         </div>
       </div>
+
+      <!-- PACCHETTI -->
+      <section style="margin-top:28px">
+        <h2 style="font-size:1.6rem;margin:0 0 12px 0">Scegli il pacchetto</h2>
+        <div class="grid g3">
+          <div class="card" style="border-color:#d1fae5">
+            <h3 style="margin:0 0 6px 0">Gratis · Stima Rapida</h3>
+            <p class="small">Calcolatore con fattori realistici (quartiere, ascensore, piano, stato, ecc.).</p>
+            <ul class="small" style="margin:8px 0 12px 16px">
+              <li>Stima istantanea + forchetta</li>
+              <li>Report a schermo</li>
+            </ul>
+            <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="btn primary" style="display:inline-block;text-decoration:none">Usa il calcolatore</a>
+          </div>
+
+          <div class="card" style="border-color:#bfdbfe">
+            <h3 style="margin:0 0 6px 0">Report Dettagliato</h3>
+            <p class="small">Analisi comparabili, foto, OMI e punteggi qualitativi. Consegna PDF.</p>
+            <ul class="small" style="margin:8px 0 12px 16px">
+              <li>Valore puntuale + range motivato</li>
+              <li>Comparabili reali (3–5)</li>
+              <li>Check parti comuni e contesto</li>
+            </ul>
+            <a id="ctaReport" href="#" class="btn" style="display:inline-block;background:#111827;color:#fff;text-decoration:none">Richiedi preventivo rapido</a>
+          </div>
+
+          <div class="card" style="border-color:#fde68a">
+            <h3 style="margin:0 0 6px 0">Perizia Professionale</h3>
+            <p class="small">Perizia a norma (anche giurata) per banca/CTU, con sopralluogo.</p>
+            <ul class="small" style="margin:8px 0 12px 16px">
+              <li>Ispezioni, rilievi, documenti</li>
+              <li>Metodi comparativo/costi/reddito</li>
+              <li>Consegna firmata digitale</li>
+            </ul>
+            <a id="ctaPerizia" href="#" class="btn secondary" style="display:inline-block;text-decoration:none">Chiedi preventivo</a>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script>
@@ -259,8 +293,7 @@
           'Mirafiori Sud': 1700
         };
 
-        function baseEurMq(country, city, district, areaQ, eurmqRef){
-          if(!isNaN(eurmqRef) && eurmqRef>0) return eurmqRef; // usa microzona inserita
+        function baseEurMq(country, city, district, areaQ){
           let base = 1900; // IT fallback
           if(country==='FR') base = 3500;
           if(country==='DE') base = 3000;
@@ -268,6 +301,10 @@
           if((city||'').trim().toLowerCase()==='torino' && TO_DISTRICT[district]){
             base = TO_DISTRICT[district];
           }
+          // qualità microzona
+          const q = parseInt(areaQ,10)||3; const k={1:0.85,2:0.93,3:1.00,4:1.08,5:1.18}[q]||1;
+          return base * k;
+        }
           // qualità microzona
           const q = parseInt(areaQ,10)||3; const k={1:0.85,2:0.93,3:1.00,4:1.08,5:1.18}[q]||1;
           return base * k;
@@ -309,7 +346,7 @@
 
         function compute(){
           const country = $('country').value; const city = $('city').value; const district = $('district').value;
-          const areaQ = $('areaQuality').value; const eurmqRef = parseFloat(($('eurmqRef')||{}).value||'');
+          const areaQ = $('areaQuality').value;
           const sqm = num('sqm'); if(!sqm||sqm<15) throw new Error('Inserisci una superficie valida (>=15 mq).');
 
           const type = $('type').value; const floor = $('floor').value; const lift = $('lift').value==='yes';
@@ -319,7 +356,7 @@
           const outdoor = num('outdoor'); const garden = num('garden'); const parking = num('parking');
           const tenancy = $('tenancy').value;
 
-          let eurmq = baseEurMq(country, city, district, areaQ, eurmqRef);
+          let eurmq = baseEurMq(country, city, district, areaQ);
           eurmq *= typeAdj(type);
           eurmq *= stateAdj(houseState);
           eurmq *= energyAdj(energy);
@@ -343,7 +380,7 @@
 
         function payload(){
           const v=(id)=>($(id)||{}).value; return {
-            local:{ paese:v('country'), citta:v('city'), quartiere:v('district'), via:v('street'), qualita:v('areaQuality'), eurmqRef:v('eurmqRef') },
+            local:{ paese:v('country'), citta:v('city'), quartiere:v('district'), via:v('street'), qualita:v('areaQuality') },
             immobile:{ tipologia:v('type'), mq:v('sqm'), piano:v('floor'), ascensore:v('lift'), camere:v('bed'), bagni:v('bath'), stato:v('houseState'), classe:v('energy'), parti_comuni:v('commonState'), esposizione:v('exposure'), rumore:v('noise'), riscaldamento:v('heating'), balconi_mq:v('outdoor'), giardino_mq:v('garden'), box_num:v('parking'), occupazione:v('tenancy') },
             contatti:{ nome:v('name'), email:v('email'), tel:v('phone'), privacy: ($( 'privacy')||{}).checked }
           };
