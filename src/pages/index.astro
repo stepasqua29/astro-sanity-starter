@@ -1,34 +1,382 @@
----
-import ValuationCalculator from "../components/ValuationCalculator.astro";
----
-
 <html lang="it">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Valuta la tua casa | Astro + Sanity</title>
-    <meta name="description" content="Calcolatore gratuito di valutazione immobiliare per Italia, Francia e Germania. Ottieni una stima istantanea e chiedi una perizia professionale." />
+    <title>Valuta la tua casa · PRO</title>
+    <meta name="description" content="Calcolatore immobiliare con fattori realistici: quartiere, ascensore, piano, stato interno/parti comuni, esposizione, rumore e pertinenze." />
+    <style>
+      :root{--bg:#f8fafc;--card:#fff;--b:#e5e7eb;--b2:#d1d5db;--txt:#111827;--muted:#6b7280;--accent:#3b82f6}
+      *{box-sizing:border-box}
+      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt);margin:0}
+      main{padding:24px;max-width:1200px;margin:0 auto}
+      h1{font-size:2rem;margin:.2rem 0}
+      .card{border:1px solid var(--b);border-radius:16px;padding:16px;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.06)}
+      .grid{display:grid;gap:12px}
+      .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+      label{font-size:.9rem;font-weight:600}
+      input,select{width:100%;border:1px solid var(--b2);border-radius:10px;padding:10px 12px;font-size:.95rem;outline:none;background:#fff}
+      input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+      .section{font-size:1.05rem;font-weight:700;margin:8px 0}
+      .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+      .btn{border:none;border-radius:12px;padding:12px 16px;font-size:1rem;cursor:pointer}
+      .primary{background:#111827;color:#fff}
+      .secondary{background:#f3f4f6}
+      .result{border-top:1px solid #eee;margin-top:16px;padding-top:16px;display:none}
+      .small{font-size:.85rem;color:var(--muted)}
+      .badge{display:inline-block;font-size:.8rem;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3}
+    </style>
   </head>
-  <body style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:#f8fafc; margin:0;">
-    <main style="padding:24px; max-width:1200px; margin:0 auto;">
-      <section style="display:flex; gap:16px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; margin-bottom:18px">
-        <div style="max-width:800px">
-          <h1 style="font-size:2rem; margin:.2rem 0">Valuta la tua casa in 2 minuti</h1>
-          <p style="color:#374151; font-size:1rem; margin:0">
-            Inserisci i dati dell’immobile: superficie, stato, classe energetica, pertinenze e posizione.
-            Ricevi subito una <strong>stima indicativa</strong> e richiedi una <strong>perizia dettagliata</strong>.
+  <body>
+    <main>
+      <section style="margin-bottom:18px">
+        <h1>Valuta la tua casa (modello PRO)</h1>
+        <p style="color:#374151">Seleziona città/Quartiere, ascensore/piano e condizioni reali. Inserisci, se lo conosci, il riferimento €/mq della microzona.</p>
+      </section>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <h2 style="font-size:1.25rem;margin:0">Calcolatore Valutazione Immobiliare</h2>
+          <span class="badge">Modello con fattori reali</span>
+        </div>
+
+        <form id="form" novalidate>
+          <div class="section">Localizzazione</div>
+          <div class="grid g3">
+            <div>
+              <label>Paese</label>
+              <select id="country">
+                <option value="IT">Italia</option>
+                <option value="FR">Francia</option>
+                <option value="DE">Germania</option>
+              </select>
+            </div>
+            <div>
+              <label>Città</label>
+              <input id="city" placeholder="Es. Torino" value="Torino" />
+            </div>
+            <div>
+              <label>Quartiere (se Torino)</label>
+              <select id="district">
+                <option value="">-- Seleziona --</option>
+                <option>Centro</option>
+                <option>Crocetta</option>
+                <option>Cit Turin</option>
+                <option>San Salvario</option>
+                <option>Vanchiglia</option>
+                <option>Santa Rita</option>
+                <option>Pozzo Strada</option>
+                <option>San Donato</option>
+                <option>Lingotto</option>
+                <option>Borgo Vittoria</option>
+                <option>Aurora</option>
+                <option>Regio Parco</option>
+                <option>Barriera di Milano</option>
+                <option>Mirafiori Nord</option>
+                <option>Mirafiori Sud</option>
+              </select>
+            </div>
+            <div>
+              <label>Qualità microzona (1-5)</label>
+              <select id="areaQuality">
+                <option value="3" selected>3 - media</option>
+                <option value="1">1 - bassa</option>
+                <option value="2">2 - medio-bassa</option>
+                <option value="4">4 - medio-alta</option>
+                <option value="5">5 - alta</option>
+              </select>
+            </div>
+            <div>
+              <label>€/mq microzona (opz.)</label>
+              <input id="eurmqRef" type="number" min="300" step="50" placeholder="Es. 1200" />
+            </div>
+            <div>
+              <label>Indirizzo (via + n.)</label>
+              <input id="street" placeholder="Es. Corso Giulio Cesare 100" />
+            </div>
+          </div>
+
+          <div class="section">Immobile</div>
+          <div class="grid g3">
+            <div>
+              <label>Tipologia</label>
+              <select id="type">
+                <option>Appartamento</option>
+                <option>Attico</option>
+                <option>Mansarda</option>
+                <option>Villa/Porzione</option>
+                <option>Rustico/Casale</option>
+              </select>
+            </div>
+            <div>
+              <label>Superficie (mq)</label>
+              <input id="sqm" type="number" min="15" step="1" placeholder="Es. 85" required />
+            </div>
+            <div>
+              <label>Piano</label>
+              <input id="floor" type="number" min="-2" max="30" step="1" placeholder="T=0, 1, 2..." />
+            </div>
+            <div>
+              <label>Ascensore</label>
+              <select id="lift">
+                <option value="yes" selected>Sì</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+            <div>
+              <label>Camere</label>
+              <input id="bed" type="number" min="0" step="1" placeholder="Es. 2" />
+            </div>
+            <div>
+              <label>Bagni</label>
+              <input id="bath" type="number" min="0" step="1" placeholder="Es. 1" />
+            </div>
+            <div>
+              <label>Stato interno</label>
+              <select id="houseState">
+                <option value="nuovo">Nuovo / pari al nuovo</option>
+                <option value="ristrutturato10" selected>Ristrutturato &lt; 10 anni</option>
+                <option value="da_ristrutturare">Da ristrutturare</option>
+              </select>
+            </div>
+            <div>
+              <label>Classe energetica</label>
+              <select id="energy">
+                <option>A4</option><option>A3</option><option>A2</option><option>A1</option>
+                <option>B</option><option selected>C</option><option>D</option>
+                <option>E</option><option>F</option><option>G</option>
+              </select>
+            </div>
+            <div>
+              <label>Parti comuni</label>
+              <select id="commonState">
+                <option value="ottime">Ottime</option>
+                <option value="buone" selected>Buone</option>
+                <option value="scarse">Scarse</option>
+              </select>
+            </div>
+            <div>
+              <label>Esposizione</label>
+              <select id="exposure">
+                <option value="mono">Mono</option>
+                <option value="doppia" selected>Doppia</option>
+                <option value="tripla">Tripla+</option>
+              </select>
+            </div>
+            <div>
+              <label>Rumore/Traffico</label>
+              <select id="noise">
+                <option value="basso" selected>Basso</option>
+                <option value="medio">Medio</option>
+                <option value="alto">Alto (su corso trafficato)</option>
+              </select>
+            </div>
+            <div>
+              <label>Riscaldamento</label>
+              <select id="heating">
+                <option value="autonomo" selected>Autonomo</option>
+                <option value="centralizzato">Centralizzato</option>
+                <option value="stufe">Stufe/altro</option>
+              </select>
+            </div>
+            <div>
+              <label>Balconi/Terrazzi (mq)</label>
+              <input id="outdoor" type="number" min="0" step="1" placeholder="Es. 12" />
+            </div>
+            <div>
+              <label>Giardino (mq)</label>
+              <input id="garden" type="number" min="0" step="1" placeholder="Es. 50" />
+            </div>
+            <div>
+              <label>Box/Posto auto (n.)</label>
+              <input id="parking" type="number" min="0" step="1" placeholder="Es. 1" />
+            </div>
+            <div>
+              <label>Occupazione</label>
+              <select id="tenancy">
+                <option value="libero" selected>Libero</option>
+                <option value="locato">Locato</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section">Contatti</div>
+          <div class="grid g3">
+            <div>
+              <label>Nome e Cognome</label>
+              <input id="name" placeholder="Es. Mario Rossi" required />
+            </div>
+            <div>
+              <label>Email</label>
+              <input id="email" type="email" placeholder="esempio@mail.com" required />
+            </div>
+            <div>
+              <label>Telefono</label>
+              <input id="phone" type="tel" placeholder="+39 ..." />
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <label class="small"><input id="privacy" type="checkbox" /> Autorizzo il trattamento ai fini di ricontatto.</label>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="btnCalc" type="submit">Calcola valutazione</button>
+            <button class="btn secondary" id="btnReset" type="button">Reset</button>
+          </div>
+        </form>
+
+        <div class="result" id="result">
+          <div id="resultText"></div>
+          <p class="small" style="margin-top:6px">
+            * Stima automatica con margine ±10–15%. Inserisci €/mq microzona quando possibile per massima precisione.
           </p>
         </div>
-      </section>
-
-      <ValuationCalculator />
-
-      <section style="margin-top:18px; color:#6b7280; font-size:.9rem">
-        <p>
-          Questo strumento non sostituisce la perizia svolta da un tecnico abilitato. Per cap, microzona e comparabili reali
-          possiamo integrare dati ufficiali (OMI/MeilleursAgents/Immobilienscout24 ecc.) in fase di perizia.
-        </p>
-      </section>
+      </div>
     </main>
+
+    <script>
+      (function(){
+        const $ = (id)=>document.getElementById(id);
+        const fmt = (x)=>x.toLocaleString('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+        const num = (id,def=0)=>{const v=parseFloat(($(id)||{}).value);return isNaN(v)?def:v};
+
+        // Preset €/mq prudenti per TORINO (centro-alta verso periferia). Numeri indicativi: usa eurmqRef se noto.
+        const TO_DISTRICT = {
+          'Centro': 4000,
+          'Crocetta': 3300,
+          'Cit Turin': 3000,
+          'San Salvario': 2600,
+          'Vanchiglia': 2600,
+          'Santa Rita': 2100,
+          'Pozzo Strada': 2000,
+          'San Donato': 1900,
+          'Lingotto': 2000,
+          'Borgo Vittoria': 1800,
+          'Aurora': 1400,
+          'Regio Parco': 1500,
+          'Barriera di Milano': 1300,
+          'Mirafiori Nord': 1900,
+          'Mirafiori Sud': 1700
+        };
+
+        function baseEurMq(country, city, district, areaQ, eurmqRef){
+          if(!isNaN(eurmqRef) && eurmqRef>0) return eurmqRef; // usa microzona inserita
+          let base = 1900; // IT fallback
+          if(country==='FR') base = 3500;
+          if(country==='DE') base = 3000;
+          // Se Torino + quartiere noto, usa preset prudente del quartiere
+          if((city||'').trim().toLowerCase()==='torino' && TO_DISTRICT[district]){
+            base = TO_DISTRICT[district];
+          }
+          // qualità microzona
+          const q = parseInt(areaQ,10)||3; const k={1:0.85,2:0.93,3:1.00,4:1.08,5:1.18}[q]||1;
+          return base * k;
+        }
+
+        function typeAdj(t){
+          if(t==='Attico') return 1.10;
+          if(t==='Mansarda') return 0.88;
+          if(t.includes('Villa')) return 1.12;
+          if(t.includes('Rustico')) return 0.90;
+          return 1.00;
+        }
+        function stateAdj(s){ if(s==='nuovo')return 1.15; if(s==='ristrutturato10')return 1.06; if(s==='da_ristrutturare')return 0.82; return 1; }
+        function energyAdj(e){ const m={A4:1.08,A3:1.06,A2:1.04,A1:1.03,B:1.02,C:1,D:0.97,E:0.93,F:0.90,G:0.86}; return m[e]||1; }
+
+        // Parti comuni condominio
+        function commonAdj(v){ if(v==='ottime')return 1.03; if(v==='buone')return 1.00; if(v==='scarse')return 0.96; return 1; }
+        // Esposizione/affacci
+        function exposureAdj(v){ if(v==='mono')return 0.97; if(v==='doppia')return 1.00; if(v==='tripla')return 1.02; return 1; }
+        // Rumore/traffico
+        function noiseAdj(v){ if(v==='alto')return 0.94; if(v==='medio')return 0.98; return 1.00; }
+        // Riscaldamento
+        function heatAdj(v){ if(v==='autonomo')return 1.02; if(v==='centralizzato')return 0.99; if(v==='stufe')return 0.95; return 1; }
+
+        // Piano/ascensore (forte penalità senza ascensore dai piani alti)
+        function floorAdj(floor, hasLift){
+          const n = parseInt(floor,10);
+          if(Number.isNaN(n)) return 1.00;
+          if(hasLift){
+            if(n<=0) return 0.98; if(n<=2) return 1.00; if(n<=4) return 1.03; if(n<=6) return 1.05; return 1.06;
+          }
+          if(n<=0) return 0.95; if(n===1) return 0.98; if(n===2) return 0.94; if(n===3) return 0.88; if(n===4) return 0.82; if(n===5) return 0.75; if(n===6) return 0.70; return 0.65;
+        }
+
+        // Pertinenze (valore assoluto, non moltiplicatore)
+        function outdoorVal(mq, base){ return Math.max(0,mq)*0.28*base; } // 28% €/mq
+        function gardenVal(mq, base){ return Math.max(0,mq)*0.15*base; }
+        function parkingVal(n){ return (parseInt(n,10)||0)*12000; }
+
+        function compute(){
+          const country = $('country').value; const city = $('city').value; const district = $('district').value;
+          const areaQ = $('areaQuality').value; const eurmqRef = parseFloat(($('eurmqRef')||{}).value||'');
+          const sqm = num('sqm'); if(!sqm||sqm<15) throw new Error('Inserisci una superficie valida (>=15 mq).');
+
+          const type = $('type').value; const floor = $('floor').value; const lift = $('lift').value==='yes';
+          const bed = num('bed'); const bath = num('bath');
+          const houseState = $('houseState').value; const energy = $('energy').value;
+          const commonState = $('commonState').value; const exposure = $('exposure').value; const noise = $('noise').value; const heating = $('heating').value;
+          const outdoor = num('outdoor'); const garden = num('garden'); const parking = num('parking');
+          const tenancy = $('tenancy').value;
+
+          let eurmq = baseEurMq(country, city, district, areaQ, eurmqRef);
+          eurmq *= typeAdj(type);
+          eurmq *= stateAdj(houseState);
+          eurmq *= energyAdj(energy);
+          eurmq *= commonAdj(commonState);
+          eurmq *= exposureAdj(exposure);
+          eurmq *= noiseAdj(noise);
+          eurmq *= heatAdj(heating);
+          eurmq *= floorAdj(floor, lift);
+          if(tenancy==='locato') eurmq *= 0.95;
+          // Camere/bagni: piccoli aggiustamenti
+          eurmq *= (1 + Math.min(0.12, Math.max(-0.06, (bed - 2) * 0.02)));
+          eurmq *= (1 + Math.min(0.08, Math.max(-0.04, (bath - 1) * 0.03)));
+
+          const core = eurmq * sqm;
+          const plusOut = outdoorVal(outdoor, eurmq);
+          const plusGarden = gardenVal(garden, eurmq);
+          const plusPark = parkingVal(parking);
+          const total = core + plusOut + plusGarden + plusPark;
+          return { eurmq, total, low: total*0.88, high: total*1.12, plusOut, plusGarden, plusPark };
+        }
+
+        function payload(){
+          const v=(id)=>($(id)||{}).value; return {
+            local:{ paese:v('country'), citta:v('city'), quartiere:v('district'), via:v('street'), qualita:v('areaQuality'), eurmqRef:v('eurmqRef') },
+            immobile:{ tipologia:v('type'), mq:v('sqm'), piano:v('floor'), ascensore:v('lift'), camere:v('bed'), bagni:v('bath'), stato:v('houseState'), classe:v('energy'), parti_comuni:v('commonState'), esposizione:v('exposure'), rumore:v('noise'), riscaldamento:v('heating'), balconi_mq:v('outdoor'), giardino_mq:v('garden'), box_num:v('parking'), occupazione:v('tenancy') },
+            contatti:{ nome:v('name'), email:v('email'), tel:v('phone'), privacy: ($( 'privacy')||{}).checked }
+          };
+        }
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+          const form = $('form'); const resBox=$('result'); const resText=$('resultText');
+          form.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            const nameOk = $('name').value.trim().length>1; const emailOk = $('email').value.includes('@');
+            if(!nameOk||!emailOk){ alert('Inserisci Nome ed Email validi.'); return; }
+            try{
+              const r = compute();
+              resText.innerHTML = `
+                <div class="row" style="align-items:baseline">
+                  <div><div class="small">Stima puntuale</div><div style="font-size:1.6rem;font-weight:800">${fmt(r.total)}</div></div>
+                  <div><div class="small">Forchetta</div><div style="font-size:1.1rem;font-weight:700">${fmt(r.low)} – ${fmt(r.high)}</div></div>
+                </div>
+                <div class="small" style="margin-top:8px">
+                  €/mq di riferimento: <strong>${fmt(r.eurmq)}</strong><br/>
+                  Extra esterni: ${fmt(r.plusOut)} · Giardino: ${fmt(r.plusGarden)} · Box/posti auto: ${fmt(r.plusPark)}
+                </div>
+                <div style="margin-top:10px"><a class="badge" id="mailtoLink" href="#">Invia richiesta di perizia dettagliata</a></div>
+              `;
+              resBox.style.display='block';
+              const subject=encodeURIComponent('Richiesta perizia dettagliata');
+              const body=encodeURIComponent(JSON.stringify(payload(),null,2));
+              $('mailtoLink').setAttribute('href',`mailto:studioimmobiliareboldrini@gmail.com?subject=${subject}&body=${body}`);
+            }catch(err){ alert(err.message||'Errore di calcolo'); }
+          });
+          $('btnReset').addEventListener('click',()=>{ form.reset(); $('city').value='Torino'; $('lift').value='yes'; $('areaQuality').value='3'; $('houseState').value='ristrutturato10'; $('energy').value='C'; $('commonState').value='buone'; $('exposure').value='doppia'; $('noise').value='basso'; $('heating').value='autonomo'; $('tenancy').value='libero'; $('result').style.display='none'; });
+        });
+      })();
+    </script>
   </body>
 </html>
