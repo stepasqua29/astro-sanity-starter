@@ -1,0 +1,468 @@
+---
+/**
+ * ValuationCalculator.astro
+ * Calcolatore di valutazione immobiliare client-side, zero dipendenze.
+ * Lingua: IT. Paesi: IT/FR/DE.
+ */
+const ENERGY_CLASSES = ["A4","A3","A2","A1","B","C","D","E","F","G"];
+const STATES = [
+  { value: "nuovo", label: "Nuovo / pari al nuovo" },
+  { value: "ristrutturato10", label: "Ristrutturato < 10 anni" },
+  { value: "da_ristrutturare", label: "Da ristrutturare" },
+];
+
+---
+
+<style>
+.calculator {
+  border: 1px solid #e5e7eb; /* gray-200 */
+  border-radius: 16px;
+  padding: 1.25rem;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.grid {
+  display: grid;
+  gap: 12px;
+}
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0,1fr));
+}
+.grid-2 {
+  grid-template-columns: repeat(2, minmax(0,1fr));
+}
+label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+input, select, textarea {
+  width: 100%;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #3b82f6; /* blue-500 */
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+}
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.btn-primary {
+  background: #111827; /* gray-900 */
+  color: #fff;
+}
+.btn-secondary {
+  background: #f3f4f6; /* gray-100 */
+}
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 8px 0;
+}
+.result {
+  border-top: 1px solid #eee;
+  margin-top: 16px; padding-top: 16px;
+}
+.badge {
+  display: inline-block;
+  font-size: .8rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #eef2ff; color: #3730a3; /* indigo-50/700 */
+}
+.small {
+  font-size: .85rem; color: #6b7280;
+}
+</style>
+
+<div class="calculator" id="calcRoot">
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap">
+    <h2 style="font-size:1.4rem; font-weight:800; margin:0">Calcolatore Valutazione Immobiliare</h2>
+    <span class="badge">Stima istantanea (beta)</span>
+  </div>
+
+  <!-- DATI IMMOBILE -->
+  <div class="section-title">Dati immobile</div>
+  <div class="grid grid-3">
+    <div>
+      <label>Paese</label>
+      <select id="country" required>
+        <option value="IT">Italia</option>
+        <option value="FR">Francia</option>
+        <option value="DE">Germania</option>
+      </select>
+    </div>
+    <div>
+      <label>Tipologia</label>
+      <select id="type">
+        <option>Appartamento</option>
+        <option>Attico/Mansarda</option>
+        <option>Villa/Porzione</option>
+        <option>Rustico/Casale</option>
+      </select>
+    </div>
+    <div>
+      <label>Qualità zona (1-5)</label>
+      <select id="areaQuality">
+        <option value="3" selected>3 - media</option>
+        <option value="1">1 - bassa</option>
+        <option value="2">2 - medio-bassa</option>
+        <option value="4">4 - medio-alta</option>
+        <option value="5">5 - alta</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Superficie (mq)</label>
+      <input id="sqm" type="number" min="15" step="1" placeholder="Es. 85" required />
+    </div>
+    <div>
+      <label>Camere</label>
+      <input id="bed" type="number" min="0" step="1" placeholder="Es. 2" />
+    </div>
+    <div>
+      <label>Bagni</label>
+      <input id="bath" type="number" min="0" step="1" placeholder="Es. 1" />
+    </div>
+
+    <div>
+      <label>Box/Posto auto (n.)</label>
+      <input id="parking" type="number" min="0" step="1" placeholder="Es. 1" />
+    </div>
+    <div>
+      <label>Piano</label>
+      <input id="floor" type="number" min="-2" max="30" step="1" placeholder="T=0, 1, 2..." />
+    </div>
+    <div>
+      <label>Ascensore</label>
+      <select id="lift">
+        <option value="yes">Sì</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Stato immobile</label>
+      <select id="houseState">
+        {STATES.map(s => <option value={s.value}>{s.label}</option>)}
+      </select>
+    </div>
+    <div>
+      <label>Classe energetica</label>
+      <select id="energy">
+        {ENERGY_CLASSES.map(c => <option value={c}>{c}</option>)}
+      </select>
+    </div>
+    <div>
+      <label>Anno costruzione (opz.)</label>
+      <input id="year" type="number" min="1900" max="2026" placeholder="Es. 1985" />
+    </div>
+
+    <div>
+      <label>Balconi/Terrazzi (mq)</label>
+      <input id="outdoor" type="number" min="0" step="1" placeholder="Es. 12" />
+    </div>
+    <div>
+      <label>Giardino (mq)</label>
+      <input id="garden" type="number" min="0" step="1" placeholder="Es. 50" />
+    </div>
+    <div>
+      <label>Libero o locato</label>
+      <select id="tenancy">
+        <option value="libero">Libero</option>
+        <option value="locato">Locato</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- INDIRIZZO -->
+  <div class="section-title" style="margin-top:12px;">Indirizzo</div>
+  <div class="grid grid-3">
+    <div>
+      <label>Via / Piazza</label>
+      <input id="street" placeholder="Es. Via Garibaldi 12" />
+    </div>
+    <div>
+      <label>Città</label>
+      <input id="city" placeholder="Es. Torino" />
+    </div>
+    <div>
+      <label>CAP / Codice postale</label>
+      <input id="zip" placeholder="Es. 10121" />
+    </div>
+  </div>
+
+  <!-- CONTATTI -->
+  <div class="section-title" style="margin-top:12px;">I tuoi contatti</div>
+  <div class="grid grid-3">
+    <div>
+      <label>Nome e Cognome</label>
+      <input id="name" placeholder="Es. Mario Rossi" required />
+    </div>
+    <div>
+      <label>Email</label>
+      <input id="email" type="email" placeholder="esempio@mail.com" required />
+    </div>
+    <div>
+      <label>Telefono</label>
+      <input id="phone" type="tel" placeholder="+39 ..." />
+    </div>
+  </div>
+  <div style="margin-top:8px">
+    <label class="small">
+      <input id="privacy" type="checkbox" />
+      Autorizzo il trattamento dei dati ai fini di ricontatto.
+    </label>
+  </div>
+
+  <!-- AZIONI -->
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px">
+    <button class="btn-primary" id="btnCalc">Calcola valutazione</button>
+    <button class="btn-secondary" id="btnReset" type="button">Reset</button>
+  </div>
+
+  <!-- RISULTATO -->
+  <div class="result" id="result" style="display:none">
+    <div id="resultText"></div>
+    <p class="small" style="margin-top:6px">
+      * Stima automatica con margine ±10–15%. Per una valutazione professionale o una perizia giurata possiamo contattarti.
+    </p>
+  </div>
+</div>
+
+<script>
+  const byId = (id) => document.getElementById(id);
+
+  function parseNum(id, fallback = 0) {
+    const v = parseFloat(byId(id).value);
+    return isNaN(v) ? fallback : v;
+  }
+
+  // Baseline €/mq per Paese (semplificazione)
+  function basePricePerCountry(code) {
+    switch (code) {
+      case "IT": return 1900;
+      case "FR": return 3500;
+      case "DE": return 3000;
+      default: return 1900;
+    }
+  }
+
+  function stateMultiplier(val) {
+    switch (val) {
+      case "nuovo": return 1.12;
+      case "ristrutturato10": return 1.05;
+      case "da_ristrutturare": return 0.85;
+      default: return 1.0;
+    }
+  }
+
+  function energyAdj(klass) {
+    const map = {
+      "A4": 1.08, "A3": 1.07, "A2": 1.06, "A1": 1.05, "B": 1.03,
+      "C": 1.00, "D": 0.98, "E": 0.95, "F": 0.92, "G": 0.88
+    };
+    return map[klass] ?? 1.0;
+  }
+
+  function areaQualityAdj(q) {
+    const n = parseInt(q, 10) || 3;
+    // 1→-15%, 2→-7%, 3→0, 4→+8%, 5→+15%
+    const table = {1:0.85, 2:0.93, 3:1.00, 4:1.08, 5:1.15};
+    return table[n] ?? 1.0;
+  }
+
+  function floorAdj(floor, hasLift) {
+    const f = parseInt(floor, 10);
+    if (isNaN(f)) return 1.0;
+    if (f <= 0) return 1.0;                           // piano terra/semi — neutro per semplicità
+    if (f <= 2) return hasLift ? 1.02 : 0.98;         // piani bassi
+    if (f <= 5) return hasLift ? 1.04 : 0.95;         // medi
+    return hasLift ? 1.06 : 0.92;                     // alti
+  }
+
+  function typeAdj(type) {
+    if (type.includes("Attico")) return 1.08;
+    if (type.includes("Villa")) return 1.12;
+    if (type.includes("Rustico")) return 0.9;
+    return 1.0; // appartamento
+  }
+
+  function outdoorValue(outdoorMq) {
+    // Balconi/terrazzi: 30% del €/mq base per mq
+    return Math.max(0, outdoorMq) * 0.30;
+  }
+
+  function gardenValue(gardenMq) {
+    // Giardino: 15% del €/mq base per mq (semplificazione)
+    return Math.max(0, gardenMq) * 0.15;
+  }
+
+  function parkingValue(n) {
+    const k = parseInt(n, 10) || 0;
+    return k * 12000; // valore forfettario per box/posto auto
+  }
+
+  function tenancyAdj(val) {
+    return val === "locato" ? 0.95 : 1.0; // sconto per immobile locato
+  }
+
+  function formatEUR(x) {
+    return x.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  }
+
+  function compute() {
+    const country = byId("country").value;
+    const type = byId("type").value;
+    const areaQ = byId("areaQuality").value;
+    const sqm = parseNum("sqm");
+    const bed = parseNum("bed");
+    const bath = parseNum("bath");
+    const parking = parseNum("parking");
+    const floor = byId("floor").value;
+    const lift = byId("lift").value === "yes";
+    const houseState = byId("houseState").value;
+    const energy = byId("energy").value;
+    const outdoor = parseNum("outdoor");
+    const garden = parseNum("garden");
+    const tenancy = byId("tenancy").value;
+
+    if (!sqm || sqm < 15) {
+      alert("Inserisci una superficie valida (>=15 mq).");
+      return;
+    }
+
+    let base = basePricePerCountry(country); // €/mq
+    // adjust base €/mq
+    base *= areaQualityAdj(areaQ);
+    base *= stateMultiplier(houseState);
+    base *= energyAdj(energy);
+    base *= typeAdj(type);
+    base *= floorAdj(floor, lift);
+    base *= tenancyAdj(tenancy);
+
+    // plus/minor per bagni e camere (piccole correzioni)
+    base *= (1 + Math.min(0.12, Math.max(-0.06, (bed - 2) * 0.02)));
+    base *= (1 + Math.min(0.08, Math.max(-0.04, (bath - 1) * 0.03)));
+
+    const coreValue = base * sqm; // valore principale
+    const plusOutdoor = (outdoorValue(outdoor) * base) || 0;
+    const plusGarden = (gardenValue(garden) * base) || 0;
+    const plusParking = parkingValue(parking) || 0;
+
+    const total = coreValue + plusOutdoor + plusGarden + plusParking;
+
+    // Range ±12%
+    const low = total * 0.88;
+    const high = total * 1.12;
+
+    return { total, low, high, baseEurMq: base, plusOutdoor: plusOutdoor, plusGarden: plusGarden, plusParking: plusParking };
+  }
+
+  function onCalc() {
+    const res = compute();
+    if (!res) return;
+
+    const rt = document.getElementById("resultText");
+    const wrap = document.getElementById("result");
+    rt.innerHTML = `
+      <div style="display:flex; align-items:baseline; gap:12px; flex-wrap:wrap">
+        <div>
+          <div class="small">Stima puntuale</div>
+          <div style="font-size:1.6rem; font-weight:800">${formatEUR(res.total)}</div>
+        </div>
+        <div>
+          <div class="small">Forchetta</div>
+          <div style="font-size:1.1rem; font-weight:700">${formatEUR(res.low)} – ${formatEUR(res.high)}</div>
+        </div>
+      </div>
+      <div style="margin-top:8px" class="small">
+        €/mq di riferimento: <strong>${formatEUR(res.baseEurMq)}</strong><br/>
+        Extra esterni: ${formatEUR(res.plusOutdoor)} · Giardino: ${formatEUR(res.plusGarden)} · Box/posti auto: ${formatEUR(res.plusParking)}
+      </div>
+      <div style="margin-top:10px">
+        <a id="mailtoLink" class="badge" href="#">Invia richiesta di perizia dettagliata</a>
+      </div>
+    `;
+    wrap.style.display = "block";
+
+    // Prepara mailto con il riepilogo
+    const params = collectPayload();
+    const subject = encodeURIComponent("Richiesta perizia dettagliata");
+    const body = encodeURIComponent(JSON.stringify(params, null, 2));
+    const mail = `mailto:studioimmobiliareboldrini@gmail.com?subject=${subject}&body=${body}`;
+    const link = document.getElementById("mailtoLink");
+    link.setAttribute("href", mail);
+  }
+
+  function collectPayload() {
+    const pick = id => (document.getElementById(id)?.value ?? "");
+    return {
+      immobile: {
+        paese: pick("country"),
+        tipologia: pick("type"),
+        qualita_zona: pick("areaQuality"),
+        superficie_mq: pick("sqm"),
+        camere: pick("bed"),
+        bagni: pick("bath"),
+        box_posto_auto: pick("parking"),
+        piano: pick("floor"),
+        ascensore: pick("lift"),
+        stato: pick("houseState"),
+        classe_energetica: pick("energy"),
+        anno: pick("year"),
+        balconi_terrazzi_mq: pick("outdoor"),
+        giardino_mq: pick("garden"),
+        occupazione: pick("tenancy"),
+        indirizzo: {
+          via: pick("street"),
+          citta: pick("city"),
+          cap: pick("zip"),
+        }
+      },
+      contatti: {
+        nome: pick("name"),
+        email: pick("email"),
+        telefono: pick("phone"),
+        privacy: document.getElementById("privacy").checked
+      }
+    };
+  }
+
+  document.getElementById("btnCalc")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    const nameOk = document.getElementById("name").value?.trim().length > 1;
+    const emailOk = document.getElementById("email").value?.includes("@");
+    if (!nameOk || !emailOk) {
+      alert("Inserisci Nome ed Email validi per ricevere la stima.");
+      return;
+    }
+    onCalc();
+  });
+
+  document.getElementById("btnReset")?.addEventListener("click", () => {
+    document.querySelectorAll("#calcRoot input, #calcRoot select, #calcRoot textarea").forEach(el => {
+      if (el.type === "checkbox") el.checked = false;
+      else el.value = "";
+    });
+    // ripristina alcuni default
+    document.getElementById("country").value = "IT";
+    document.getElementById("houseState").value = "ristrutturato10";
+    document.getElementById("energy").value = "C";
+    document.getElementById("areaQuality").value = "3";
+    document.getElementById("lift").value = "yes";
+    document.getElementById("tenancy").value = "libero";
+    document.getElementById("type").value = "Appartamento";
+    const wrap = document.getElementById("result");
+    if (wrap) wrap.style.display = "none";
+  });
+</script>
