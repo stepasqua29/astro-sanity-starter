@@ -1,0 +1,164 @@
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Pacchetti | Boldrini</title>
+    <meta name="description" content="Scegli tra Stima Gratuita, Report Dettagliato e Perizia Professionale. CTA chiare per vendere subito." />
+    <style>
+      :root{
+        --bg:#0b1220; --card:#0e1628; --ink:#eaf2ff; --muted:#9fb3d1; --brand:#6ee7ff; --brand-2:#7c3aed; --accent:#22c55e; --stroke:#1f2a44;
+        --grad:linear-gradient(135deg,var(--brand) 0%, var(--brand-2) 100%);
+      }
+      *{box-sizing:border-box}
+      body{margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink)}
+      a{color:inherit}
+      .wrap{max-width:1180px; margin:0 auto; padding:20px}
+      header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0}
+      nav a{opacity:.9; text-decoration:none; margin:0 10px}
+      nav a:hover{opacity:1}
+      .btn{display:inline-block; border:none; border-radius:12px; padding:12px 18px; font-weight:700; cursor:pointer; text-decoration:none}
+      .btn-primary{background:var(--accent); color:#041410}
+      .btn-ghost{border:1px solid var(--stroke); background:transparent}
+      .hero{margin-top:18px; padding:34px; border:1px solid var(--stroke); border-radius:20px; background:var(--card)}
+      .hero h1{margin:0 0 10px; font-size:clamp(26px,4.2vw,44px)}
+      .notice{font-size:.95rem; color:var(--muted)}
+      .grid-3{display:grid; gap:14px; grid-template-columns:repeat(3,minmax(0,1fr)); margin-top:18px}
+      .card{border:1px solid var(--stroke); border-radius:16px; background:#0b1324; padding:16px; display:flex; flex-direction:column}
+      .price{font-weight:900; font-size:28px}
+      .tag{display:inline-block; font-size:.75rem; padding:4px 10px; border-radius:999px; background:rgba(110,231,255,.12); color:#c9f6ff; border:1px solid rgba(110,231,255,.25)}
+      ul{margin:10px 0 0 18px; color:var(--muted)}
+      .foot{margin-top:34px; padding:16px; text-align:center; color:#9fb3d1; border-top:1px solid var(--stroke)}
+      .hl{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+      @media (max-width:900px){ .grid-3{grid-template-columns:1fr} }
+      form input, form select, form textarea{width:100%; border:1px solid #263451; background:#0b1324; border-radius:10px; color:var(--ink); padding:10px 12px; outline:none}
+      form input:focus, form textarea:focus{border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="logo">BOLDRINI • Pacchetti</div>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/pacchetti">Pacchetti</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <h1>Tre pacchetti, un obiettivo: <span class="hl">vendere bene</span>.</h1>
+        <div class="notice">Scegli cosa ti serve ora: dalla stima gratuita, al report per trattare, fino alla perizia professionale per banche/CTU.</div>
+      </section>
+
+      <!-- LISTINO -->
+      <section>
+        <div class="grid-3">
+          <!-- Gratis -->
+          <div class="card">
+            <div class="tag">Gratuito</div>
+            <h3 style="margin:8px 0 4px">Stima Rapida</h3>
+            <div class="notice">Per capire subito l’ordine di grandezza.</div>
+            <div class="price" style="margin:10px 0 8px">€ 0</div>
+            <ul>
+              <li>Calcolatore con fattori reali</li>
+              <li>Valore + forchetta</li>
+              <li>€/mq prudenziali per quartiere</li>
+            </ul>
+            <div style="margin-top:auto">
+              <a class="btn btn-primary" href="/">Apri il calcolatore</a>
+            </div>
+          </div>
+
+          <!-- Report Dettagliato -->
+          <div class="card" style="border-color:#3b2bb9">
+            <div class="tag">Più venduto</div>
+            <h3 style="margin:8px 0 4px">Report Dettagliato</h3>
+            <div class="notice">PDF con comparabili, OMI, motivazioni e suggerimenti di pricing.</div>
+            <div class="price" style="margin:10px 0 8px">da € 249</div>
+            <ul>
+              <li>3–5 comparabili reali (non solo annunci)</li>
+              <li>Correzioni: piano/ascensore, stato, parti comuni</li>
+              <li>Consegna 24–48h</li>
+            </ul>
+            <div style="margin-top:auto">
+              <a class="btn" style="background:var(--grad); color:#061016" id="ctaReport">Richiedi preventivo</a>
+            </div>
+          </div>
+
+          <!-- Perizia Professionale -->
+          <div class="card" style="border-color:#b38a1f">
+            <div class="tag">Su preventivo</div>
+            <h3 style="margin:8px 0 4px">Perizia Professionale</h3>
+            <div class="notice">Per banche, atti notarili o contenziosi. Con sopralluogo.</div>
+            <div class="price" style="margin:10px 0 8px">su preventivo</div>
+            <ul>
+              <li>Metodi: comparativo, costi, reddito</li>
+              <li>Rilievi, documenti, firma digitale</li>
+              <li>Tempistiche concordate</li>
+            </ul>
+            <div style="margin-top:auto">
+              <a class="btn btn-ghost" id="ctaPerizia">Chiedi preventivo</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FORM LEAD (Netlify-ready + mailto fallback) -->
+      <section style="margin-top:22px">
+        <h2 style="margin:0 0 10px">Richiedi un preventivo rapido</h2>
+        <div class="notice" style="margin-bottom:10px">Compila i dati essenziali. Ti rispondiamo entro poche ore.</div>
+        <form id="leadForm" name="lead-pacchetti" method="POST" data-netlify="true">
+          <input type="hidden" name="form-name" value="lead-pacchetti" />
+          <div style="display:grid; gap:12px; grid-template-columns:repeat(3,minmax(0,1fr))">
+            <div><label>Nome e Cognome</label><input name="nome" id="nome" required /></div>
+            <div><label>Email</label><input name="email" id="email" type="email" required /></div>
+            <div><label>Telefono</label><input name="tel" id="tel" /></div>
+            <div><label>Città</label><input name="citta" id="citta" placeholder="Es. Torino" /></div>
+            <div><label>Indirizzo</label><input name="via" id="via" placeholder="Via e numero" /></div>
+            <div><label>Pacchetto</label>
+              <select name="pacchetto" id="pacchetto">
+                <option>Report Dettagliato</option>
+                <option>Perizia Professionale</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <label>Note</label>
+            <textarea name="note" id="note" rows="4" placeholder="Tipologia, piano/ascensore, stato, tempistiche..."></textarea>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+            <button class="btn btn-primary" type="submit">Invia richiesta</button>
+            <button class="btn btn-ghost" type="button" id="mailtoBtn">Invia via email</button>
+          </div>
+          <div class="notice" style="margin-top:8px">Compilando invii consenso al ricontatto.</div>
+        </form>
+      </section>
+
+      <footer class="foot">© Boldrini • Valutazioni & Perizie – P.IVA 12719230018</footer>
+    </div>
+
+    <script>
+      (function(){
+        // Mailto fallback se Netlify non è configurato
+        const btn = document.getElementById('mailtoBtn');
+        if(btn){
+          btn.addEventListener('click', ()=>{
+            const pick = id => (document.getElementById(id)?.value || '').trim();
+            const payload = {
+              nome: pick('nome'), email: pick('email'), tel: pick('tel'),
+              citta: pick('citta'), via: pick('via'), pacchetto: pick('pacchetto'),
+              note: pick('note')
+            };
+            const mail = `mailto:studioimmobiliareboldrini@gmail.com?subject=${encodeURIComponent('Richiesta preventivo ' + payload.pacchetto)}&body=${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
+            window.location.href = mail;
+          });
+        }
+
+        // Shortcut CTA card → precompila pacchetto
+        const r = document.getElementById('ctaReport');
+        const p = document.getElementById('ctaPerizia');
+        if(r){ r.addEventListener('click',(e)=>{ e.preventDefault(); document.getElementById('pacchetto').value='Report Dettagliato'; document.getElementById('nome').focus(); window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'}); }); }
+        if(p){ p.addEventListener('click',(e)=>{ e.preventDefault(); document.getElementById('pacchetto').value='Perizia Professionale'; document.getElementById('nome').focus(); window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'}); }); }
+      })();
+    </script>
+  </body>
+</html>
