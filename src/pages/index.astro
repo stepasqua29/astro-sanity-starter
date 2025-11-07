@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Valuta la tua casa · PRO</title>
-    <meta name="description" content="Calcolatore immobiliare con fattori realistici: quartiere, ascensore, piano, stato interno/parti comuni, esposizione, rumore e pertinenze." />
+    <meta name="description" content="Calcolatore immobiliare realistico: quartiere (Torino), ascensore, piano, stato interno/parti comuni, esposizione, rumore, pertinenze + pacchetti servizio." />
     <style>
       :root{--bg:#f8fafc;--card:#fff;--b:#e5e7eb;--b2:#d1d5db;--txt:#111827;--muted:#6b7280;--accent:#3b82f6}
       *{box-sizing:border-box}
@@ -25,19 +25,22 @@
       .result{border-top:1px solid #eee;margin-top:16px;padding-top:16px;display:none}
       .small{font-size:.85rem;color:var(--muted)}
       .badge{display:inline-block;font-size:.8rem;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3}
+      a.btnlike{display:inline-block;text-decoration:none}
+      ul.feature{margin:8px 0 12px 16px}
     </style>
   </head>
   <body>
     <main>
       <section style="margin-bottom:18px">
         <h1>Valuta la tua casa (modello PRO)</h1>
-        <p style="color:#374151">Seleziona città/Quartiere, ascensore/piano e condizioni reali. Il modello applica automaticamente valori prudenziali per quartiere e qualità microzona.<\/p>
+        <p style="color:#374151">Seleziona città/quartiere, ascensore/piano e condizioni reali. Il modello applica automaticamente valori prudenziali per quartiere e qualità microzona.</p>
       </section>
 
-      <div class="card">
+      <!-- CALCOLATORE -->
+      <section class="card" id="calc-card">
         <div class="row" style="justify-content:space-between">
           <h2 style="font-size:1.25rem;margin:0">Calcolatore Valutazione Immobiliare</h2>
-          <span class="badge">Modello con fattori reali</span>
+          <span class="badge">Fattori reali inclusi</span>
         </div>
 
         <form id="form" novalidate>
@@ -89,6 +92,10 @@
             <div>
               <label>Indirizzo (via + n.)</label>
               <input id="street" placeholder="Es. Corso Giulio Cesare 100" />
+            </div>
+            <div>
+              <label>CAP</label>
+              <input id="zip" placeholder="Es. 10100" />
             </div>
           </div>
 
@@ -227,7 +234,7 @@
             * Stima automatica con margine ±10–15%. I valori di quartiere sono prudenziali e già inclusi nel calcolo.
           </p>
         </div>
-      </div>
+      </section>
 
       <!-- PACCHETTI -->
       <section style="margin-top:28px">
@@ -236,33 +243,33 @@
           <div class="card" style="border-color:#d1fae5">
             <h3 style="margin:0 0 6px 0">Gratis · Stima Rapida</h3>
             <p class="small">Calcolatore con fattori realistici (quartiere, ascensore, piano, stato, ecc.).</p>
-            <ul class="small" style="margin:8px 0 12px 16px">
+            <ul class="small feature">
               <li>Stima istantanea + forchetta</li>
               <li>Report a schermo</li>
             </ul>
-            <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="btn primary" style="display:inline-block;text-decoration:none">Usa il calcolatore</a>
+            <a href="#calc-card" class="btnlike primary">Usa il calcolatore</a>
           </div>
 
           <div class="card" style="border-color:#bfdbfe">
             <h3 style="margin:0 0 6px 0">Report Dettagliato</h3>
             <p class="small">Analisi comparabili, foto, OMI e punteggi qualitativi. Consegna PDF.</p>
-            <ul class="small" style="margin:8px 0 12px 16px">
+            <ul class="small feature">
               <li>Valore puntuale + range motivato</li>
               <li>Comparabili reali (3–5)</li>
               <li>Check parti comuni e contesto</li>
             </ul>
-            <a id="ctaReport" href="#" class="btn" style="display:inline-block;background:#111827;color:#fff;text-decoration:none">Richiedi preventivo rapido</a>
+            <a id="ctaReport" href="#" class="btnlike" style="background:#111827;color:#fff">Richiedi preventivo rapido</a>
           </div>
 
           <div class="card" style="border-color:#fde68a">
             <h3 style="margin:0 0 6px 0">Perizia Professionale</h3>
             <p class="small">Perizia a norma (anche giurata) per banca/CTU, con sopralluogo.</p>
-            <ul class="small" style="margin:8px 0 12px 16px">
+            <ul class="small feature">
               <li>Ispezioni, rilievi, documenti</li>
               <li>Metodi comparativo/costi/reddito</li>
               <li>Consegna firmata digitale</li>
             </ul>
-            <a id="ctaPerizia" href="#" class="btn secondary" style="display:inline-block;text-decoration:none">Chiedi preventivo</a>
+            <a id="ctaPerizia" href="#" class="btnlike secondary">Chiedi preventivo</a>
           </div>
         </div>
       </section>
@@ -272,40 +279,21 @@
       (function(){
         const $ = (id)=>document.getElementById(id);
         const fmt = (x)=>x.toLocaleString('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0});
-        const num = (id,def=0)=>{const v=parseFloat(($(id)||{}).value);return isNaN(v)?def:v};
+        const num = (id,def=0)=>{const el=$(id);const v=parseFloat(el?el.value:"");return isNaN(v)?def:v};
 
-        // Preset €/mq prudenti per TORINO (centro-alta verso periferia). Numeri indicativi: usa eurmqRef se noto.
+        // Preset €/mq prudenti per TORINO (centro→periferia). Indicativi.
         const TO_DISTRICT = {
-          'Centro': 4000,
-          'Crocetta': 3300,
-          'Cit Turin': 3000,
-          'San Salvario': 2600,
-          'Vanchiglia': 2600,
-          'Santa Rita': 2100,
-          'Pozzo Strada': 2000,
-          'San Donato': 1900,
-          'Lingotto': 2000,
-          'Borgo Vittoria': 1800,
-          'Aurora': 1400,
-          'Regio Parco': 1500,
-          'Barriera di Milano': 1300,
-          'Mirafiori Nord': 1900,
-          'Mirafiori Sud': 1700
+          'Centro': 4000, 'Crocetta': 3300, 'Cit Turin': 3000, 'San Salvario': 2600, 'Vanchiglia': 2600,
+          'Santa Rita': 2100, 'Pozzo Strada': 2000, 'San Donato': 1900, 'Lingotto': 2000,
+          'Borgo Vittoria': 1800, 'Aurora': 1400, 'Regio Parco': 1500, 'Barriera di Milano': 1300,
+          'Mirafiori Nord': 1900, 'Mirafiori Sud': 1700
         };
 
         function baseEurMq(country, city, district, areaQ){
           let base = 1900; // IT fallback
           if(country==='FR') base = 3500;
           if(country==='DE') base = 3000;
-          // Se Torino + quartiere noto, usa preset prudente del quartiere
-          if((city||'').trim().toLowerCase()==='torino' && TO_DISTRICT[district]){
-            base = TO_DISTRICT[district];
-          }
-          // qualità microzona
-          const q = parseInt(areaQ,10)||3; const k={1:0.85,2:0.93,3:1.00,4:1.08,5:1.18}[q]||1;
-          return base * k;
-        }
-          // qualità microzona
+          if((city||'').trim().toLowerCase()==='torino' && TO_DISTRICT[district]) base = TO_DISTRICT[district];
           const q = parseInt(areaQ,10)||3; const k={1:0.85,2:0.93,3:1.00,4:1.08,5:1.18}[q]||1;
           return base * k;
         }
@@ -319,41 +307,41 @@
         }
         function stateAdj(s){ if(s==='nuovo')return 1.15; if(s==='ristrutturato10')return 1.06; if(s==='da_ristrutturare')return 0.82; return 1; }
         function energyAdj(e){ const m={A4:1.08,A3:1.06,A2:1.04,A1:1.03,B:1.02,C:1,D:0.97,E:0.93,F:0.90,G:0.86}; return m[e]||1; }
-
-        // Parti comuni condominio
         function commonAdj(v){ if(v==='ottime')return 1.03; if(v==='buone')return 1.00; if(v==='scarse')return 0.96; return 1; }
-        // Esposizione/affacci
         function exposureAdj(v){ if(v==='mono')return 0.97; if(v==='doppia')return 1.00; if(v==='tripla')return 1.02; return 1; }
-        // Rumore/traffico
         function noiseAdj(v){ if(v==='alto')return 0.94; if(v==='medio')return 0.98; return 1.00; }
-        // Riscaldamento
         function heatAdj(v){ if(v==='autonomo')return 1.02; if(v==='centralizzato')return 0.99; if(v==='stufe')return 0.95; return 1; }
-
-        // Piano/ascensore (forte penalità senza ascensore dai piani alti)
         function floorAdj(floor, hasLift){
           const n = parseInt(floor,10);
           if(Number.isNaN(n)) return 1.00;
-          if(hasLift){
-            if(n<=0) return 0.98; if(n<=2) return 1.00; if(n<=4) return 1.03; if(n<=6) return 1.05; return 1.06;
-          }
+          if(hasLift){ if(n<=0) return 0.98; if(n<=2) return 1.00; if(n<=4) return 1.03; if(n<=6) return 1.05; return 1.06; }
           if(n<=0) return 0.95; if(n===1) return 0.98; if(n===2) return 0.94; if(n===3) return 0.88; if(n===4) return 0.82; if(n===5) return 0.75; if(n===6) return 0.70; return 0.65;
         }
-
-        // Pertinenze (valore assoluto, non moltiplicatore)
-        function outdoorVal(mq, base){ return Math.max(0,mq)*0.28*base; } // 28% €/mq
+        function outdoorVal(mq, base){ return Math.max(0,mq)*0.28*base; }
         function gardenVal(mq, base){ return Math.max(0,mq)*0.15*base; }
         function parkingVal(n){ return (parseInt(n,10)||0)*12000; }
 
         function compute(){
-          const country = $('country').value; const city = $('city').value; const district = $('district').value;
+          const country = $('country').value;
+          const city = $('city').value;
+          const district = $('district').value;
           const areaQ = $('areaQuality').value;
           const sqm = num('sqm'); if(!sqm||sqm<15) throw new Error('Inserisci una superficie valida (>=15 mq).');
 
-          const type = $('type').value; const floor = $('floor').value; const lift = $('lift').value==='yes';
-          const bed = num('bed'); const bath = num('bath');
-          const houseState = $('houseState').value; const energy = $('energy').value;
-          const commonState = $('commonState').value; const exposure = $('exposure').value; const noise = $('noise').value; const heating = $('heating').value;
-          const outdoor = num('outdoor'); const garden = num('garden'); const parking = num('parking');
+          const type = $('type').value;
+          const floor = $('floor').value;
+          const lift = $('lift').value==='yes';
+          const bed = num('bed');
+          const bath = num('bath');
+          const houseState = $('houseState').value;
+          const energy = $('energy').value;
+          const commonState = $('commonState').value;
+          const exposure = $('exposure').value;
+          const noise = $('noise').value;
+          const heating = $('heating').value;
+          const outdoor = num('outdoor');
+          const garden = num('garden');
+          const parking = num('parking');
           const tenancy = $('tenancy').value;
 
           let eurmq = baseEurMq(country, city, district, areaQ);
@@ -366,7 +354,6 @@
           eurmq *= heatAdj(heating);
           eurmq *= floorAdj(floor, lift);
           if(tenancy==='locato') eurmq *= 0.95;
-          // Camere/bagni: piccoli aggiustamenti
           eurmq *= (1 + Math.min(0.12, Math.max(-0.06, (bed - 2) * 0.02)));
           eurmq *= (1 + Math.min(0.08, Math.max(-0.04, (bath - 1) * 0.03)));
 
@@ -375,19 +362,25 @@
           const plusGarden = gardenVal(garden, eurmq);
           const plusPark = parkingVal(parking);
           const total = core + plusOut + plusGarden + plusPark;
+
           return { eurmq, total, low: total*0.88, high: total*1.12, plusOut, plusGarden, plusPark };
         }
 
         function payload(){
-          const v=(id)=>($(id)||{}).value; return {
-            local:{ paese:v('country'), citta:v('city'), quartiere:v('district'), via:v('street'), qualita:v('areaQuality') },
-            immobile:{ tipologia:v('type'), mq:v('sqm'), piano:v('floor'), ascensore:v('lift'), camere:v('bed'), bagni:v('bath'), stato:v('houseState'), classe:v('energy'), parti_comuni:v('commonState'), esposizione:v('exposure'), rumore:v('noise'), riscaldamento:v('heating'), balconi_mq:v('outdoor'), giardino_mq:v('garden'), box_num:v('parking'), occupazione:v('tenancy') },
-            contatti:{ nome:v('name'), email:v('email'), tel:v('phone'), privacy: ($( 'privacy')||{}).checked }
+          const v=(id)=>{const el=$(id);return el?el.value:""};
+          return {
+            local:{ paese:v('country'), citta:v('city'), quartiere:v('district'), via:v('street'), cap:v('zip'), qualita:v('areaQuality') },
+            immobile:{ tipologia:v('type'), mq:v('sqm'), piano:v('floor'), ascensore:v('lift'), camere:v('bed'), bagni:v('bath'),
+              stato:v('houseState'), classe:v('energy'), parti_comuni:v('commonState'), esposizione:v('exposure'),
+              rumore:v('noise'), riscaldamento:v('heating'), balconi_mq:v('outdoor'), giardino_mq:v('garden'),
+              box_num:v('parking'), occupazione:v('tenancy') },
+            contatti:{ nome:v('name'), email:v('email'), tel:v('phone'), privacy: (document.getElementById('privacy')||{}).checked }
           };
         }
 
         document.addEventListener('DOMContentLoaded', ()=>{
           const form = $('form'); const resBox=$('result'); const resText=$('resultText');
+
           form.addEventListener('submit',(e)=>{
             e.preventDefault();
             const nameOk = $('name').value.trim().length>1; const emailOk = $('email').value.includes('@');
@@ -403,15 +396,34 @@
                   €/mq di riferimento: <strong>${fmt(r.eurmq)}</strong><br/>
                   Extra esterni: ${fmt(r.plusOut)} · Giardino: ${fmt(r.plusGarden)} · Box/posti auto: ${fmt(r.plusPark)}
                 </div>
-                <div style="margin-top:10px"><a class="badge" id="mailtoLink" href="#">Invia richiesta di perizia dettagliata</a></div>
               `;
               resBox.style.display='block';
-              const subject=encodeURIComponent('Richiesta perizia dettagliata');
-              const body=encodeURIComponent(JSON.stringify(payload(),null,2));
-              $('mailtoLink').setAttribute('href',`mailto:studioimmobiliareboldrini@gmail.com?subject=${subject}&body=${body}`);
             }catch(err){ alert(err.message||'Errore di calcolo'); }
           });
-          $('btnReset').addEventListener('click',()=>{ form.reset(); $('city').value='Torino'; $('lift').value='yes'; $('areaQuality').value='3'; $('houseState').value='ristrutturato10'; $('energy').value='C'; $('commonState').value='buone'; $('exposure').value='doppia'; $('noise').value='basso'; $('heating').value='autonomo'; $('tenancy').value='libero'; $('result').style.display='none'; });
+
+          $('btnReset').addEventListener('click', ()=>{
+            form.reset();
+            $('city').value='Torino';
+            $('lift').value='yes';
+            $('areaQuality').value='3';
+            $('houseState').value='ristrutturato10';
+            $('energy').value='C';
+            $('commonState').value='buone';
+            $('exposure').value='doppia';
+            $('noise').value='basso';
+            $('heating').value='autonomo';
+            $('tenancy').value='libero';
+            $('result').style.display='none';
+          });
+
+          // CTA pacchetti: compila email con payload corrente (anche se non hai calcolato)
+          function sendMail(to, subject){
+            const body = encodeURIComponent(JSON.stringify(payload(), null, 2));
+            window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${body}`;
+          }
+          const to = 'studioimmobiliareboldrini@gmail.com';
+          const ctaReport = $('ctaReport'); if(ctaReport) ctaReport.addEventListener('click', (e)=>{ e.preventDefault(); sendMail(to, 'Richiesta Report Dettagliato'); });
+          const ctaPerizia = $('ctaPerizia'); if(ctaPerizia) ctaPerizia.addEventListener('click', (e)=>{ e.preventDefault(); sendMail(to, 'Richiesta Perizia Professionale'); });
         });
       })();
     </script>
